@@ -23,8 +23,10 @@ export default function Hero() {
       if (displayed.length > 0) {
         timeout = setTimeout(() => setDisplayed(displayed.slice(0, -1)), 60)
       } else {
-        setWordIndex((i) => (i + 1) % words.length)
-        setTyping(true)
+        timeout = setTimeout(() => {
+          setWordIndex((i) => (i + 1) % words.length)
+          setTyping(true)
+        }, 0)
       }
     }
 
