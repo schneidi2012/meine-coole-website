@@ -1,20 +1,25 @@
-import { motion } from 'framer-motion'
-import { Sun, Moon, Menu, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Sun, Moon, Menu, X, GraduationCap, BookOpen, Brain, BarChart3, Trophy, Home } from 'lucide-react'
 import { useState } from 'react'
+
+export type AppTab = 'home' | 'hausaufgaben' | 'quiz' | 'fortschritt' | 'leaderboard'
 
 interface NavbarProps {
   darkMode: boolean
   setDarkMode: (value: boolean) => void
+  activeTab: AppTab
+  setActiveTab: (tab: AppTab) => void
 }
 
-const navLinks = [
-  { label: 'Features', href: '#features' },
-  { label: 'Stats', href: '#stats' },
-  { label: 'Demo', href: '#demo' },
-  { label: 'Testimonials', href: '#testimonials' },
+const tabs: { key: AppTab; label: string; icon: React.ReactNode }[] = [
+  { key: 'home', label: 'Home', icon: <Home size={15} /> },
+  { key: 'hausaufgaben', label: 'Hausaufgaben', icon: <BookOpen size={15} /> },
+  { key: 'quiz', label: 'Quiz', icon: <Brain size={15} /> },
+  { key: 'fortschritt', label: 'Fortschritt', icon: <BarChart3 size={15} /> },
+  { key: 'leaderboard', label: 'Leaderboard', icon: <Trophy size={15} /> },
 ]
 
-export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
+export default function Navbar({ darkMode, setDarkMode, activeTab, setActiveTab }: NavbarProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
 
   return (
@@ -26,22 +31,37 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <a href="#" className="flex items-center gap-2">
+          <button
+            onClick={() => setActiveTab('home')}
+            className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          >
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-cyan-500 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">M</span>
+              <GraduationCap size={16} className="text-white" />
             </div>
-            <span className="font-bold text-lg dark:text-white text-gray-900">ModernUI</span>
-          </a>
+            <span className="font-bold text-lg dark:text-white text-gray-900">SchulApp</span>
+          </button>
 
-          <div className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className="text-sm font-medium text-gray-400 hover:text-white dark:text-gray-400 dark:hover:text-white transition-colors"
+          <div className="hidden md:flex items-center gap-1">
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`relative flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  activeTab === tab.key
+                    ? 'text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
               >
-                {link.label}
-              </a>
+                {tab.icon}
+                {tab.label}
+                {activeTab === tab.key && (
+                  <motion.div
+                    layoutId="nav-indicator"
+                    className="absolute inset-0 bg-white/10 rounded-lg"
+                    transition={{ type: 'spring', bounce: 0.2, duration: 0.4 }}
+                  />
+                )}
+              </button>
             ))}
           </div>
 
@@ -53,12 +73,6 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
             >
               {darkMode ? <Sun size={18} /> : <Moon size={18} />}
             </button>
-            <a
-              href="#"
-              className="hidden md:block px-4 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-cyan-500 text-white text-sm font-medium hover:opacity-90 transition-opacity"
-            >
-              Get Started
-            </a>
             <button
               className="md:hidden p-2 text-gray-400"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -70,25 +84,34 @@ export default function Navbar({ darkMode, setDarkMode }: NavbarProps) {
         </div>
       </div>
 
-      {mobileOpen && (
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          exit={{ opacity: 0, height: 0 }}
-          className="md:hidden border-t border-white/10 px-4 py-4 flex flex-col gap-4"
-        >
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={() => setMobileOpen(false)}
-              className="text-sm font-medium text-gray-300 hover:text-white transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
-        </motion.div>
-      )}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            className="md:hidden border-t border-white/10 px-4 py-4 flex flex-col gap-1"
+          >
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                onClick={() => {
+                  setActiveTab(tab.key)
+                  setMobileOpen(false)
+                }}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-left ${
+                  activeTab === tab.key
+                    ? 'bg-white/10 text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                {tab.icon}
+                {tab.label}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.nav>
   )
 }
