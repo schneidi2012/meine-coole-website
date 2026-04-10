@@ -67,19 +67,17 @@ export function useQuiz() {
     if (nextIdx >= shuffledQuestions.length) {
       // Quiz beendet
       const timeSpent = Math.round((Date.now() - startTimeRef.current) / 1000)
+      const finalCorrect =
+        correctCount +
+        (shuffledQuestions[currentQuestionIndex]?.correctAnswer === selectedAnswer ? 1 : 0)
       const newResult: QuizResult = {
         id: crypto.randomUUID(),
         category: activeCategory!,
-        score: correctCount + (shuffledQuestions[currentQuestionIndex]?.correctAnswer === selectedAnswer ? 0 : 0),
+        score: finalCorrect,
         totalQuestions: shuffledQuestions.length,
         completedAt: new Date().toISOString(),
         timeSpentSeconds: timeSpent,
       }
-      // recalculate with final correct count
-      const finalCorrect =
-        correctCount +
-        (shuffledQuestions[currentQuestionIndex]?.correctAnswer === selectedAnswer ? 1 : 0)
-      newResult.score = finalCorrect
       setResults((prev) => [...prev, newResult])
       setQuizFinished(true)
     } else {

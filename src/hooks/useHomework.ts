@@ -57,15 +57,17 @@ export function useHomework() {
       return a.subject.localeCompare(b.subject)
     })
 
-  const stats = {
-    total: homeworks.length,
-    offen: homeworks.filter((hw) => hw.status === 'offen').length,
-    inBearbeitung: homeworks.filter((hw) => hw.status === 'in-bearbeitung').length,
-    erledigt: homeworks.filter((hw) => hw.status === 'erledigt').length,
-    overdue: homeworks.filter(
-      (hw) => hw.status !== 'erledigt' && new Date(hw.dueDate) < new Date()
-    ).length,
-  }
+  const now = new Date()
+  const stats = homeworks.reduce(
+    (acc, hw) => {
+      if (hw.status === 'offen') acc.offen++
+      else if (hw.status === 'in-bearbeitung') acc.inBearbeitung++
+      else if (hw.status === 'erledigt') acc.erledigt++
+      if (hw.status !== 'erledigt' && new Date(hw.dueDate) < now) acc.overdue++
+      return acc
+    },
+    { total: homeworks.length, offen: 0, inBearbeitung: 0, erledigt: 0, overdue: 0 }
+  )
 
   return {
     homeworks: filteredHomeworks,
